@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "comments", indexes = {
         @Index(name = "idx_comments_document_id", columnList = "document_id")
 })
-public class Comments {
+public class  Comments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
