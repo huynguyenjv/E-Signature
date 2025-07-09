@@ -10,30 +10,27 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "activity_logs", indexes = {
-        @Index(name = "idx_activity_logs_user_id", columnList = "user_id"),
-        @Index(name = "idx_activity_logs_created_at", columnList = "created_at DESC")
-})
-public class ActivityLogs {
+@Table(name = "form_submissions")
+public class FormSubmissions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(length = 36, nullable = false, updatable = false)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_activity_logs_user_id"))
-    private Users user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", foreignKey = @ForeignKey(name = "fk_activity_logs_document_id"))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "document_id", nullable = false, foreignKey = @ForeignKey(name = "fk_form_submissions_document_id"))
     private Documents document;
 
-    @Column(nullable = false, length = 50)
-    private String action;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "submitted_by", foreignKey = @ForeignKey(name = "fk_form_submissions_submitted_by"))
+    private Users submittedBy;
 
-    @Column(columnDefinition = "JSON")
-    private String details;
+    @Column(name = "submitter_email", length = 100)
+    private String submitterEmail;
+
+    @Column(name = "form_data", nullable = false, columnDefinition = "JSON")
+    private String formData;
 
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
