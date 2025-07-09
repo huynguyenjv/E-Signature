@@ -1,4 +1,4 @@
-package com.backend.esignature.repositories;
+package com.backend.esignature.repositories.sharing;
 
 import com.backend.esignature.entities.SharedDocuments;
 import org.springframework.data.jpa.repository.JpaRepository;

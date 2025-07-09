@@ -1,4 +1,4 @@
-package com.backend.esignature.repositories;
+package com.backend.esignature.repositories.templates;
 
 import com.backend.esignature.entities.RequestTemplates;
 import org.springframework.data.jpa.repository.JpaRepository;

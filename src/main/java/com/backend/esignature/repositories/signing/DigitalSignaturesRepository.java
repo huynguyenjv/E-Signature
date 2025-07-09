@@ -1,4 +1,4 @@
-package com.backend.esignature.repositories;
+package com.backend.esignature.repositories.signing;
 
 import com.backend.esignature.entities.DigitalSignatures;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.backend.esignature.repositories;
+package com.backend.esignature.repositories.form;
 
 import com.backend.esignature.entities.Annotations;
 import org.springframework.data.jpa.repository.JpaRepository;

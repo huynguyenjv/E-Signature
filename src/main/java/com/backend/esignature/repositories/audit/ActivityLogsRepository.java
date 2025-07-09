@@ -1,4 +1,4 @@
-package com.backend.esignature.repositories;
+package com.backend.esignature.repositories.audit;
 
 import com.backend.esignature.entities.ActivityLogs;
 import org.springframework.data.jpa.repository.JpaRepository;
