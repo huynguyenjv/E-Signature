@@ -1,4 +1,9 @@
 package com.backend.esignature.repositories;
 
-public interface DocumentPagesRepository {
+import com.backend.esignature.entities.DocumentPages;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface DocumentPagesRepository extends JpaRepository<DocumentPages, String> {
 }

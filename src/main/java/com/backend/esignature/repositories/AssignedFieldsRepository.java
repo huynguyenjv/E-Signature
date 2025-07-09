@@ -1,4 +1,9 @@
 package com.backend.esignature.repositories;
 
-public interface AssignedFieldsRepository {
+import com.backend.esignature.entities.AssignedFields;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AssignedFieldsRepository  extends JpaRepository<AssignedFields, String> {
 }
