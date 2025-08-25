@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/public/**").permitAll()
                         // Documentation endpoints
                         .requestMatchers("/swagger-ui/**","/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         // Health check
@@ -52,7 +52,7 @@ public class SecurityConfig {
                         // Admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // User endpoints
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN", "PREMIUM_USER")
+                        .requestMatchers("/api/v1/user/**").hasAnyRole("USER", "ADMIN", "PREMIUM_USER")
                         // All other requests need authentication
                         .anyRequest().authenticated()
                 )

@@ -33,7 +33,7 @@ public class Users {
     @Column(name = "fullName", nullable = false)
     private String fullName;
 
-    @Column(name = "avatar_url", nullable = false)
+    @Column(name = "avatar_url")
     private String avatarUrl;
 
     @Column(nullable = false)
