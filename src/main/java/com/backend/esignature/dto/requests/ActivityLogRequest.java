@@ -5,8 +5,6 @@ import lombok.*;
 import java.sql.Timestamp;
 
 @Data
-@Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +17,5 @@ public class ActivityLogRequest {
     private String ipAddress;
     private String userAgent;
     private Timestamp createdAt;
+
 }

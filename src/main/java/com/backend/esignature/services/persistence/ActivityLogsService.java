@@ -7,7 +7,7 @@ import com.backend.esignature.entities.Documents;
 import com.backend.esignature.entities.Users;
 import com.backend.esignature.exceptions.BadRequestException;
 import com.backend.esignature.exceptions.ResourceNotFoundException;
-import com.backend.esignature.mapper.ActivityLogsMapper;
+import com.backend.esignature.mapper.ActivityLogMapper;
 import com.backend.esignature.repositories.audit.ActivityLogsRepository;
 import com.backend.esignature.repositories.document.DocumentsRepository;
 import com.backend.esignature.repositories.user.UserRepository;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
             private final ActivityLogsRepository activityLogsRepository;
             private final UserRepository userRepository;
             private final DocumentsRepository documentsRepository;
-            private final ActivityLogsMapper mapper;
+            private final ActivityLogMapper mapper;
             private final ValidationUtils validationUtils;
 
             @Override
@@ -114,7 +114,7 @@ import java.util.stream.Collectors;
 
             @Override
             @Transactional
-            public void delete(String id) {
+            public ActivityLogResponse delete(String id) {
                 log.info("Deleting activity log with id: {}", id);
 
                 validationUtils.validateId(id, "ActivityLog");
@@ -132,6 +132,7 @@ import java.util.stream.Collectors;
                     log.error("Unexpected error while deleting activity log with id: {}", id, ex);
                     throw new RuntimeException("Failed to delete activity log", ex);
                 }
+                return null;
             }
 
             @Override

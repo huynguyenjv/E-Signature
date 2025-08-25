@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class DocumentPages {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(length = 36, nullable = false, updatable = false)
     private String id;
 

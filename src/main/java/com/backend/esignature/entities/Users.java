@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -48,12 +51,25 @@ public class Users {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         createdAt = now;
         updatedAt = now;
-        subscriptionType = SubscriptionTypeEnum.Free;
+
+        if (subscriptionType == null) {
+            subscriptionType = SubscriptionTypeEnum.Free;
+        }
+
         if (!isActive) {
             isActive = true;
         }
@@ -64,4 +80,19 @@ public class Users {
         updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
+    // Helper methods for roles
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
+
+    public boolean hasRole(String roleName) {
+        return roles.stream()
+                .anyMatch(role -> role.getName().equals(roleName));
+    }
 }
