@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     // Handle ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+    public ApiResponse<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -28,12 +28,16 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("404")
+                .message("Not Found")
+                .data(errorResponse)
+                .build();
     }
 
     // Handle BadRequestException
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(
+    public ApiResponse<ErrorResponse> handleBadRequestException(
             BadRequestException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -43,12 +47,16 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("400")
+                .message("Bad Request")
+                .data(errorResponse)
+                .build();
     }
 
     // Handle UnauthorizedException
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(
+    public ApiResponse<ErrorResponse> handleUnauthorizedException(
             UnauthorizedException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -58,12 +66,16 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("401")
+                .message(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .data(errorResponse)
+                .build();
     }
 
     // Handle ForbiddenException
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleForbiddenException(
+    public ApiResponse<ErrorResponse> handleForbiddenException(
             ForbiddenException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -73,12 +85,16 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("403")
+                .message(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .data(errorResponse)
+                .build();
     }
 
     // Handle Validation Errors (Bean Validation)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ApiResponse<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -97,12 +113,16 @@ public class GlobalExceptionHandler {
 
         errorResponse.setValidationErrors(validationErrors);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("400")
+                .message("Validation Failed")
+                .data(errorResponse)
+                .build();
     }
 
     // Handle Constraint Violation Exception (Path Variable/Request Parameter validation)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+    public ApiResponse<ErrorResponse> handleConstraintViolationException(
             ConstraintViolationException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -122,12 +142,16 @@ public class GlobalExceptionHandler {
 
         errorResponse.setValidationErrors(validationErrors);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("400")
+                .message("Constraint Violation")
+                .data(errorResponse)
+                .build();
     }
 
     // Handle IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+    public ApiResponse<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -137,12 +161,16 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("400")
+                .message("Bad Request")
+                .data(errorResponse)
+                .build();
     }
 
     // Handle Generic Exception
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(
+    public ApiResponse<ErrorResponse> handleGlobalException(
             Exception ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -152,6 +180,10 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ApiResponse.<ErrorResponse>builder()
+                .code("500")
+                .message("Internal Server Error")
+                .data(errorResponse)
+                .build();
     }
 }

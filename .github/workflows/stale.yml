@@ -1,27 +1,40 @@
-# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
-#
-# You can adjust the behavior by modifying this file.
-# For more information, see:
-# https://github.com/actions/stale
 name: Mark stale issues and pull requests
 
 on:
   schedule:
-  - cron: '26 8 * * *'
+    - cron: '26 8 * * *' # Chạy mỗi ngày lúc 08:26 UTC
+  workflow_dispatch: # Cho phép trigger thủ công
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
     permissions:
       issues: write
       pull-requests: write
 
     steps:
-    - uses: actions/stale@v5
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Stale issue message'
-        stale-pr-message: 'Stale pull request message'
-        stale-issue-label: 'no-issue-activity'
-        stale-pr-label: 'no-pr-activity'
+      - uses: actions/stale@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Comment nhắc nhở khi issue/PR trở nên stale
+          stale-issue-message: '⚠️ This issue has had no activity for a while and will be closed in 7 days if no further activity occurs.'
+          stale-pr-message: '⚠️ This pull request has had no activity for a while and will be closed in 7 days if no further activity occurs.'
+
+          # Nhãn gắn cho stale
+          stale-issue-label: 'no-issue-activity'
+          stale-pr-label: 'no-pr-activity'
+
+          # Số ngày không hoạt động để đánh dấu stale
+          days-before-stale: 7
+
+          # Số ngày sau khi stale để tự động đóng
+          days-before-close: 7
+
+          # Comment khi đóng
+          close-issue-message: '🔒 Closing this issue due to inactivity.'
+          close-pr-message: '🔒 Closing this pull request due to inactivity.'
+
+          # Bỏ qua các nhãn đặc biệt nếu cần
+          exempt-issue-labels: 'pinned,important'
+          exempt-pr-labels: 'pinned,important'

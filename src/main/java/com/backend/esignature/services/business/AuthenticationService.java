@@ -172,6 +172,29 @@ public class AuthenticationService {
         log.info("Password reset completed for user: {}", user.getUsername());
     }
 
+    @Transactional
+    public AuthResponse refreshToken(String refreshToken) {
+        try{
+            if(jwtTokenProvider.validateToken(refreshToken)){
+                String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
+                String newAccessToken = jwtTokenProvider.generateAccessToken(username);
+
+                Users user = userService.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                AuthResponse response = buildAuthResponse(user, newAccessToken, refreshToken);
+                return response;
+            }else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid refresh token");
+            }
+
+        }catch (Exception e){
+            log.error("Refresh token failed: {}", refreshToken, e);
+            throw new RuntimeException("Refresh token failed: " + e.getMessage());
+        }
+    }
+
     private AuthResponse buildAuthResponse(Users user, String accessToken, String refreshToken) {
         AuthResponse response = new AuthResponse();
         response.setAccessToken(accessToken);

@@ -44,7 +44,10 @@ public class AuthenticationController {
     )
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest){
         try{
+             log.info("Attempting login for user: {}", loginRequest.getUsername());
+
              AuthResponse authResponse = authenticationService.authenticate(loginRequest);
+             
              return  ResponseEntity.ok(authResponse);
         }catch (Exception e){
             log.error("Authentication failed for user: {}", loginRequest.getUsername());
@@ -63,6 +66,8 @@ public class AuthenticationController {
     )
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
+            log.info("Attempting registration for user: {}", registerRequest.getUsername());
+
             AuthResponse authResponse = authenticationService.register(registerRequest);
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -78,37 +83,18 @@ public class AuthenticationController {
     @PostMapping("/refresh")
     @Operation(
             summary = "Refresh access token",
-            description = "Generate new access token using refresh token"
+            description = "Generate new access token using refresh token",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+                @ApiResponse(responseCode = "400", description = "Invalid refresh token")
+            }
     )
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         try {
-            String refreshToken = request.getRefreshToken();
-
-            if (jwtTokenProvider.validateToken(refreshToken)) {
-                String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-                String newAccessToken = jwtTokenProvider.generateAccessToken(username);
-
-                Users user = userService.findByUsername(username)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
-
-                LoginResponse response = LoginResponse.builder()
-                        .accessToken(newAccessToken)
-                        .refreshToken(refreshToken)
-                        .tokenType("Bearer")
-                        .expiresIn(900L)
-                        .username(username)
-                        .email(user.getEmail())
-                        .fullName(user.getFullName())
-                        .roles(user.getRoles().stream()
-                                .map(role -> role.getName())
-                                .toList())
-                        .build();
-
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid refresh token");
-            }
+            log.info("Attempting token refresh for user: {}", jwtTokenProvider.getUsernameFromToken(request.getRefreshToken()));
+            AuthResponse response = authenticationService.refreshToken(request.getRefreshToken());
+            return ResponseEntity.ok(response).body("Token refreshed successfully");
+        
         } catch (Exception e) {
             log.error("Token refresh failed", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -119,7 +105,11 @@ public class AuthenticationController {
     @GetMapping("/me")
     @Operation(
             summary = "Get current user info",
-            description = "Get information about the currently authenticated user"
+            description = "Get information about the currently authenticated user",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "User info retrieved successfully"),
+                @ApiResponse(responseCode = "404", description = "User not found")
+            }
     )
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         try {
@@ -145,7 +135,11 @@ public class AuthenticationController {
     @PostMapping("/logout")
     @Operation(
             summary = "User logout",
-            description = "User logout and clear access token"
+            description = "User logout and clear access token",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "User logged out successfully"),
+                @ApiResponse(responseCode = "400", description = "Invalid refresh token")
+            }
     )
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
         try {
@@ -162,7 +156,11 @@ public class AuthenticationController {
     @PostMapping("/change-password")
     @Operation(
             summary = "User can change password",
-            description = "User change password when user want to change to new password"
+            description = "User change password when user want to change to new password",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+                @ApiResponse(responseCode = "400", description = "Invalid request")
+            }
     )
     public ResponseEntity<?> changePassword(@RequestParam String username,@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         try{
@@ -177,7 +175,11 @@ public class AuthenticationController {
     @PostMapping("/forgot-password")
     @Operation(
             summary = "Forgot password",
-            description = "User can change password when you forgot password"
+            description = "User can change password when you forgot password",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Forgot password email sent"),
+                @ApiResponse(responseCode = "400", description = "Invalid request")
+            }
     )
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         try{
@@ -188,6 +190,28 @@ public class AuthenticationController {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(
+        summary = "Reset password",
+        description = "User can reset password using reset token",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+        }
+    )
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request){
+        try{
+            
+            authenticationService.resetPassword(request);
+            
+            return ResponseEntity.ok().body("Reset password successfully");
+
+        }catch( RuntimeException ex){
+            log.error("Reset password failed", ex);
+            throw new RuntimeException("Reset password failed: " + ex.getMessage());
+        }
     }
 
 }

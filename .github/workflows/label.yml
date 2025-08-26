@@ -1,22 +1,52 @@
-# This workflow will triage pull requests and apply a label based on the
-# paths that are modified in the pull request.
-#
-# To use this workflow, you will need to set up a .github/labeler.yml
-# file with configuration.  For more information, see:
-# https://github.com/actions/labeler
+name: Smart Labeler with AI
 
-name: Labeler
-on: [pull_request_target]
+on: 
+  pull_request_target:
 
 jobs:
-  label:
-
+  smart-label:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
+      issues: write
+      models: read
 
     steps:
-    - uses: actions/labeler@v4
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 1: Path-based labeling
+      - uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 2: AI-based label suggestion
+      - name: Suggest labels using AI
+        id: ai_label
+        uses: actions/ai-inference@v1
+        with:
+          prompt: |
+            Analyze the following pull request title and commit messages, and suggest up to 3 relevant labels that match our repository labels:
+            Title: ${{ github.event.pull_request.title }}
+            Body: ${{ github.event.pull_request.body }}
+            Commits:
+            ${{ join(github.event.pull_request.commits_url, "\n") }}
+            Output format: label1, label2, label3
+
+      # Step 3: Apply AI suggested labels
+      - name: Apply AI suggested labels
+        run: |
+          LABELS="${{ steps.ai_label.outputs.response }}"
+          echo "Applying labels: $LABELS"
+          gh pr edit ${{ github.event.pull_request.number }} --add-label $LABELS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Comment AI explanation
+      - name: Comment AI explanation
+        if: steps.ai_label.outputs.response != ''
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "🤖 Suggested labels based on PR content: ${{ steps.ai_label.outputs.response }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

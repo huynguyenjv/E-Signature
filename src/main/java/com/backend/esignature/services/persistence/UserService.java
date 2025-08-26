@@ -23,9 +23,9 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    @Lazy
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final UserMapper userMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -85,18 +85,54 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Users> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public UserResponse findByUsername(String username) {
+        try{
+            if(username == null || username.isEmpty()){
+                throw new IllegalArgumentException("Username cannot be null or empty");
+            }
+            Users user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+            return userMapper.toResponse(user);
+        }catch(Exception e){
+            log.error("Error finding user by username {}: {}", username, e.getMessage());
+            throw new RuntimeException("Error finding user by username: " + username);
+        }
     }
 
     @Transactional(readOnly = true)
-    public Optional<Users> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserResponse findByEmail(String email) {
+        try{
+
+            if(email == null || email.isEmpty()){
+                throw new IllegalArgumentException("Email cannot be null or empty");
+            }
+
+            Users user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+            return userMapper.toResponse(user);
+
+        }catch(RuntimeException ex){
+            log.error("Error finding user by email {}: {}", email, ex.getMessage());
+            throw new RuntimeException("Error finding user by email: " + email);
+        }
     }
 
     @Transactional(readOnly = true)
-    public Optional<Users> findById(String id) {
-        return userRepository.findById(id);
+    public UserResponse findById(String id) {
+        try{
+            if( id == null || id.isEmpty()){
+                throw new IllegalArgumentException("ID cannot be null or empty");
+            }
+
+            Users user = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+            return userMapper.toResponse(user);
+
+        }catch( RuntimeException ex){
+            log.error("Error finding user by id {}: {}", id, ex.getMessage());
+            throw new RuntimeException("Error finding user by id: " + id);
+        }
     }
 
     @Transactional
@@ -143,4 +179,5 @@ public class UserService implements UserDetailsService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
 }

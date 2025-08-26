@@ -1,6 +1,8 @@
-name: Greetings
+name: Greetings with AI
 
-on: [pull_request_target, issues]
+on: 
+  pull_request_target:
+  issues:
 
 jobs:
   greeting:
@@ -8,9 +10,48 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: read
+      models: read
+
     steps:
-    - uses: actions/first-interaction@v1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: "Message that will be displayed on users' first issue"
-        pr-message: "Message that will be displayed on users' first pull request"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: First interaction check
+        id: first_interaction
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: "👋 Welcome to the repository! Thanks for opening your first issue."
+          pr-message: "👋 Welcome! Thanks for opening your first pull request."
+
+      - name: Add first-time contributor label
+        if: steps.first_interaction.outputs.first_interaction == 'true'
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            gh issue edit ${{ github.event.issue.number }} --add-label "first-time-contributor"
+          else
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "first-time-contributor"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Optional AI personalized greeting
+        if: steps.first_interaction.outputs.first_interaction == 'true'
+        id: ai_greet
+        uses: actions/ai-inference@v1
+        with:
+          prompt: |
+            Write a friendly and encouraging message for a first-time contributor based on the following content:
+            ${{ github.event.issue.body || github.event.pull_request.body }}
+
+      - name: Comment AI greeting
+        if: steps.first_interaction.outputs.first_interaction == 'true'
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            gh issue comment ${{ github.event.issue.number }} --body "${{ steps.ai_greet.outputs.response }}"
+          else
+            gh pr comment ${{ github.event.pull_request.number }} --body "${{ steps.ai_greet.outputs.response }}"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
