@@ -1,5 +1,11 @@
 package com.backend.esignature.dto.responses;
 
+
+import lombok.*;
+
+import java.sql.Timestamp;
+import com.backend.esignature.dto.responses.RoleResponse;
+
 @Data
 @Builder
 @AllArgsConstructor

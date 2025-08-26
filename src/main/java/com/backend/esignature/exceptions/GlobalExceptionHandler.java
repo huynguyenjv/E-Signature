@@ -1,6 +1,7 @@
 package com.backend.esignature.exceptions;
 
 import com.backend.esignature.dto.responses.ErrorResponse;
+import com.backend.esignature.dto.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

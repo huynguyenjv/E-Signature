@@ -1,12 +1,22 @@
 package com.backend.esignature.controllers.user;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.backend.esignature.dto.requests.*;
+import backend.esignature.dto.requests.UserRequest;
+import backend.esignature.dto.responses.UserResponse;
+import backend.esignature.dto.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
+@Tag(name = "User", description = "User management APIs")
 public class UserController {
 
     private final UserService userService;
