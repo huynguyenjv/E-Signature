@@ -21,25 +21,35 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 2: AI-based label suggestion
+      # Step 2: Fetch commits for PR
+      - name: Get commit messages
+        id: commits
+        run: |
+          gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].commit.message' | tr '\n' ' ' > commit_messages.txt
+          COMMITS=$(cat commit_messages.txt)
+          echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 3: AI-based label suggestion
       - name: Suggest labels using AI
         id: ai_label
         uses: actions/ai-inference@v1
         with:
           prompt: |
-            Analyze the following pull request title and commit messages, and suggest up to 3 relevant labels that match our repository labels:
+            Analyze the following pull request title, body, and commit messages, and suggest up to 3 relevant labels that match our repository labels:
             Title: ${{ github.event.pull_request.title }}
             Body: ${{ github.event.pull_request.body }}
-            Commits:
-            ${{ join(github.event.pull_request.commits_url, "\n") }}
+            Commits: ${{ steps.commits.outputs.commits }}
             Output format: label1, label2, label3
 
-      # Step 3: Apply AI suggested labels
+      # Step 4: Apply AI suggested labels
       - name: Apply AI suggested labels
         run: |
           LABELS="${{ steps.ai_label.outputs.response }}"
           echo "Applying labels: $LABELS"
-          gh pr edit ${{ github.event.pull_request.number }} --add-label $LABELS
+          # chuyển dấu phẩy thành space để gh CLI nhận đúng
+          gh pr edit ${{ github.event.pull_request.number }} --add-label $(echo "$LABELS" | tr ',' ' ')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
