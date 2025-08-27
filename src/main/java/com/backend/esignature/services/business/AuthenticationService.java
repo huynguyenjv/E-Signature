@@ -3,16 +3,21 @@ package com.backend.esignature.services.business;
 
 import com.backend.esignature.config.security.JwtTokenProvider;
 import com.backend.esignature.dto.requests.*;
+import com.backend.esignature.dto.responses.UserResponse;
 import com.backend.esignature.entities.PasswordResetToken;
 import com.backend.esignature.entities.RefreshToken;
 import com.backend.esignature.entities.Role;
 import com.backend.esignature.entities.Users;
+import com.backend.esignature.mapper.UserMapper;
 import com.backend.esignature.repositories.auth.PasswordResetTokenRepository;
 import com.backend.esignature.repositories.auth.RefreshTokenRepository;
 import com.backend.esignature.repositories.user.UserRepository;
 import com.backend.esignature.services.persistence.RoleService;
+import com.backend.esignature.services.persistence.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,6 +45,8 @@ public class AuthenticationService {
     private final RefreshTokenService refreshTokenService;
     private final RoleService roleService;
     private final EmailService emailService;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Transactional
     public AuthResponse authenticate(LoginRequest  loginRequest){
@@ -173,20 +180,18 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public AuthResponse refreshToken(String refreshToken) {
+    public ResponseEntity<AuthResponse> refreshToken(String refreshToken) {
         try{
             if(jwtTokenProvider.validateToken(refreshToken)){
                 String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
                 String newAccessToken = jwtTokenProvider.generateAccessToken(username);
 
-                Users user = userService.findByUsername(username)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
+                UserResponse user = userService.findByUsername(username);
 
-                AuthResponse response = buildAuthResponse(user, newAccessToken, refreshToken);
-                return response;
+                AuthResponse response = buildAuthResponse(userMapper.toEntity(user), newAccessToken, refreshToken);
+                return ResponseEntity.ok(response);
             }else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Invalid refresh token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
         }catch (Exception e){

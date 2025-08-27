@@ -3,6 +3,7 @@ package com.backend.esignature.controllers.user;
 import com.backend.esignature.config.security.JwtTokenProvider;
 import com.backend.esignature.dto.requests.*;
 import com.backend.esignature.dto.responses.LoginResponse;
+import com.backend.esignature.dto.responses.UserResponse;
 import com.backend.esignature.entities.Users;
 import com.backend.esignature.services.business.AuthenticationService;
 import com.backend.esignature.services.persistence.UserService;
@@ -92,8 +93,8 @@ public class AuthenticationController {
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         try {
             log.info("Attempting token refresh for user: {}", jwtTokenProvider.getUsernameFromToken(request.getRefreshToken()));
-            AuthResponse response = authenticationService.refreshToken(request.getRefreshToken());
-            return ResponseEntity.ok(response).body("Token refreshed successfully");
+            ResponseEntity<AuthResponse> response = authenticationService.refreshToken(request.getRefreshToken());
+            return ResponseEntity.status(HttpStatus.OK).body("Token refreshed successfully");
         
         } catch (Exception e) {
             log.error("Token refresh failed", e);
@@ -114,8 +115,7 @@ public class AuthenticationController {
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         try {
             String username = authentication.getName();
-            Users user = userService.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            UserResponse user = userService.findByUsername(username);
 
             return ResponseEntity.ok(LoginResponse.builder()
                     .username(user.getUsername())

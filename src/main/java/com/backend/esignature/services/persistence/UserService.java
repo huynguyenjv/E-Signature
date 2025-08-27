@@ -1,5 +1,6 @@
 package com.backend.esignature.services.persistence;
 
+import com.backend.esignature.dto.requests.UserRequest;
 import com.backend.esignature.entities.Role;
 import com.backend.esignature.entities.Users;
 import com.backend.esignature.repositories.user.UserRepository;
@@ -48,12 +49,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public Users createUser(String username, String email, String password, String fullName) {
+    public Users createUser(UserRequest userRequest) {
         Users user = Users.builder()
-                .username(username)
-                .email(email)
-                .passwordHash(passwordEncoder.encode(password))
-                .fullName(fullName)
+                .username(userRequest.getUsername())
+                .email(userRequest.getEmail())
+                .passwordHash(passwordEncoder.encode(userRequest.getPassword()))
+                .fullName(userRequest.getFullName())
                 .isActive(true)
                 .build();
         Role role = roleService.getOrCreateDefaultUserRole();

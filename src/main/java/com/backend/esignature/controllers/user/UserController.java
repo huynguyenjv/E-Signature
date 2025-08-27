@@ -1,14 +1,17 @@
 package com.backend.esignature.controllers.user;
 
 import com.backend.esignature.dto.requests.*;
-import backend.esignature.dto.requests.UserRequest;
-import backend.esignature.dto.responses.UserResponse;
-import backend.esignature.dto.responses.ApiResponse;
+import com.backend.esignature.dto.responses.RestApiResponse;
+import com.backend.esignature.dto.responses.UserResponse;
+import com.backend.esignature.entities.Users;
+import com.backend.esignature.mapper.UserMapper;
+import com.backend.esignature.services.persistence.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping("/{username}")
     @Operation(
@@ -30,17 +34,17 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
         }
     )
-    public ApiResponse<UserResponse> getUserByUsername(@PathVariable String username) {
+    public RestApiResponse<UserResponse> getUserByUsername(@PathVariable String username) {
         try{
             UserResponse userResponse = userService.findByUsername(username);
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("200")
                     .message("User found")
                     .data(userResponse)
                     .build();
         }catch(Exception e){
             log.error("Error retrieving user by username {}: {}", username, e.getMessage());
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("500")
                     .message("Error retrieving user")
                     .build();
@@ -56,17 +60,18 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid user data")
         }
     )
-    public ApiResponse<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+    public RestApiResponse<UserResponse> createUser(@RequestBody UserRequest userRequest) {
         try {
-            UserResponse userResponse = userService.createUser(userRequest);
-            return ApiResponse.<UserResponse>builder()
+            Users user = userService.createUser(userRequest);
+
+            return RestApiResponse.<UserResponse>builder()
                     .code("201")
                     .message("User created successfully")
-                    .data(userResponse)
+                    .data(userMapper.toResponse(user))
                     .build();
         } catch (Exception e) {
             log.error("Error creating user: {}", e.getMessage());
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("400")
                     .message("Error creating user")
                     .build();
@@ -82,16 +87,16 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User or role not found")
         }
     )
-    public ApiResponse<Void> assignRoleToUser(@RequestParam String userId, @RequestParam String roleName) {
+    public RestApiResponse<Void> assignRoleToUser(@RequestParam String userId, @RequestParam String roleName) {
         try {
             userService.assignRoleToUser(userId, roleName);
-            return ApiResponse.<Void>builder()
+            return RestApiResponse.<Void>builder()
                     .code("200")
                     .message("Role assigned successfully")
                     .build();
         } catch (Exception e) {
             log.error("Error assigning role {} to user {}: {}", roleName, userId, e.getMessage());
-            return ApiResponse.<Void>builder()
+            return RestApiResponse.<Void>builder()
                     .code("404")
                     .message("User or role not found")
                     .build();
@@ -107,16 +112,16 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User or role not found")
         }
     )
-    public ApiResponse<Void> removeRoleFromUser(@RequestParam String username, @RequestParam String roleName) {
+    public RestApiResponse<Void> removeRoleFromUser(@RequestParam String username, @RequestParam String roleName) {
         try {
             userService.removeRoleFromUser(username, roleName);
-            return ApiResponse.<Void>builder()
+            return RestApiResponse.<Void>builder()
                     .code("200")
                     .message("Role removed successfully")
                     .build();
         } catch (Exception e) {
             log.error("Error removing role {} from user {}: {}", roleName, username, e.getMessage());
-            return ApiResponse.<Void>builder()
+            return RestApiResponse.<Void>builder()
                     .code("404")
                     .message("User or role not found")
                     .build();
@@ -129,17 +134,17 @@ public class UserController {
         summary = "Find user by email",
         description = "Retrieve user information by email"
     )
-    public ApiResponse<UserResponse> getUserByEmail(@PathVariable String email) {
+    public RestApiResponse<UserResponse> getUserByEmail(@PathVariable String email) {
         try{
             UserResponse userResponse = userService.findByEmail(email);
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("200")
                     .message("User retrieved successfully")
                     .data(userResponse)
                     .build();
         }catch(Exception e){
             log.error("Error retrieving user by email {}: {}", email, e.getMessage());
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("500")
                     .message("Error retrieving user by email: " + email)
                     .build();
@@ -152,9 +157,9 @@ public class UserController {
         summary = "Find user by id",
         description = "Retrieve user information by id"
     )
-    public ApiResponse<UserResponse> getUserById(@PathVariable String id) {
+    public RestApiResponse<UserResponse> getUserById(@PathVariable String id) {
         UserResponse userResponse = userService.findById(id);
-            return ApiResponse.<UserResponse>builder()
+            return RestApiResponse.<UserResponse>builder()
                     .code("200")
                     .message("User retrieved successfully")
                     .data(userResponse)

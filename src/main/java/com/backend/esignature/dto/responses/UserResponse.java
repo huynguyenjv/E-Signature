@@ -4,6 +4,8 @@ package com.backend.esignature.dto.responses;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.List;
+
 import com.backend.esignature.dto.responses.RoleResponse;
 
 @Data
@@ -21,5 +23,5 @@ public class UserResponse {
     private Timestamp updatedAt;
     private Timestamp lastLogin;
     private boolean isActive;
-    private RoleResponse roles;
+    private List<RoleResponse> roles;
 }

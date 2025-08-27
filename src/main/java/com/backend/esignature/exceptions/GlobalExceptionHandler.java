@@ -1,9 +1,8 @@
 package com.backend.esignature.exceptions;
 
 import com.backend.esignature.dto.responses.ErrorResponse;
-import com.backend.esignature.dto.responses.ApiResponse;
+import com.backend.esignature.dto.responses.RestApiResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +18,7 @@ public class GlobalExceptionHandler {
 
     // Handle ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ApiResponse<ErrorResponse> handleResourceNotFoundException(
+    public RestApiResponse<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -29,7 +28,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("404")
                 .message("Not Found")
                 .data(errorResponse)
@@ -38,7 +37,7 @@ public class GlobalExceptionHandler {
 
     // Handle BadRequestException
     @ExceptionHandler(BadRequestException.class)
-    public ApiResponse<ErrorResponse> handleBadRequestException(
+    public RestApiResponse<ErrorResponse> handleBadRequestException(
             BadRequestException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -48,7 +47,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("400")
                 .message("Bad Request")
                 .data(errorResponse)
@@ -57,7 +56,7 @@ public class GlobalExceptionHandler {
 
     // Handle UnauthorizedException
     @ExceptionHandler(UnauthorizedException.class)
-    public ApiResponse<ErrorResponse> handleUnauthorizedException(
+    public RestApiResponse<ErrorResponse> handleUnauthorizedException(
             UnauthorizedException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -67,7 +66,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("401")
                 .message(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .data(errorResponse)
@@ -76,7 +75,7 @@ public class GlobalExceptionHandler {
 
     // Handle ForbiddenException
     @ExceptionHandler(ForbiddenException.class)
-    public ApiResponse<ErrorResponse> handleForbiddenException(
+    public RestApiResponse<ErrorResponse> handleForbiddenException(
             ForbiddenException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -86,7 +85,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("403")
                 .message(HttpStatus.FORBIDDEN.getReasonPhrase())
                 .data(errorResponse)
@@ -95,7 +94,7 @@ public class GlobalExceptionHandler {
 
     // Handle Validation Errors (Bean Validation)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApiResponse<ErrorResponse> handleValidationException(
+    public RestApiResponse<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -114,7 +113,7 @@ public class GlobalExceptionHandler {
 
         errorResponse.setValidationErrors(validationErrors);
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("400")
                 .message("Validation Failed")
                 .data(errorResponse)
@@ -123,7 +122,7 @@ public class GlobalExceptionHandler {
 
     // Handle Constraint Violation Exception (Path Variable/Request Parameter validation)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ApiResponse<ErrorResponse> handleConstraintViolationException(
+    public RestApiResponse<ErrorResponse> handleConstraintViolationException(
             ConstraintViolationException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -143,7 +142,7 @@ public class GlobalExceptionHandler {
 
         errorResponse.setValidationErrors(validationErrors);
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("400")
                 .message("Constraint Violation")
                 .data(errorResponse)
@@ -152,7 +151,7 @@ public class GlobalExceptionHandler {
 
     // Handle IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
-    public ApiResponse<ErrorResponse> handleIllegalArgumentException(
+    public RestApiResponse<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -162,7 +161,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("400")
                 .message("Bad Request")
                 .data(errorResponse)
@@ -171,7 +170,7 @@ public class GlobalExceptionHandler {
 
     // Handle Generic Exception
     @ExceptionHandler(Exception.class)
-    public ApiResponse<ErrorResponse> handleGlobalException(
+    public RestApiResponse<ErrorResponse> handleGlobalException(
             Exception ex, WebRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -181,7 +180,7 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
 
-        return ApiResponse.<ErrorResponse>builder()
+        return RestApiResponse.<ErrorResponse>builder()
                 .code("500")
                 .message("Internal Server Error")
                 .data(errorResponse)
