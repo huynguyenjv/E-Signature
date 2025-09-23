@@ -31,7 +31,10 @@ public class Users {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private UserStatus status = UserStatus.ACTIVE;
+    private UserStatus status ;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -51,4 +54,14 @@ public class Users {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserOrganizations> userOrganizations;
 
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }

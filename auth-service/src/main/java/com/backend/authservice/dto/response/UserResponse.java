@@ -16,7 +16,6 @@ public class UserResponse {
     private String email;
     private String password;
     private String fullName;
-    private String avatar_url;
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private Timestamp lastLogin;

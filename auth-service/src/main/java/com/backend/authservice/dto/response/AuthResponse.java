@@ -18,8 +18,6 @@ public class AuthResponse {
         private String username;
         private String email;
         private String fullName;
-        private String avatarUrl;
-        private String subscriptionType;
         private List<String> roles;
         private boolean isActive;
     }

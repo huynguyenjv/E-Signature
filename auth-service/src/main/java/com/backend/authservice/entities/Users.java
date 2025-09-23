@@ -32,12 +32,6 @@ public class Users {
     @Column(name = "fullName", nullable = false)
     private String fullName;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
-
-    @Column(nullable = false)
-    private SubscriptionTypeEnum subscriptionType;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt;
 
@@ -64,10 +58,6 @@ public class Users {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         createdAt = now;
         updatedAt = now;
-
-        if (subscriptionType == null) {
-            subscriptionType = SubscriptionTypeEnum.Free;
-        }
 
         if (!isActive) {
             isActive = true;

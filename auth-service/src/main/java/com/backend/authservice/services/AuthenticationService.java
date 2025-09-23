@@ -9,6 +9,7 @@ import com.backend.authservice.entities.PasswordResetToken;
 import com.backend.authservice.entities.RefreshToken;
 import com.backend.authservice.entities.Role;
 import com.backend.authservice.entities.Users;
+import com.backend.authservice.kafka.UserEventProducer;
 import com.backend.authservice.mapper.UserMapper;
 import com.backend.authservice.repositories.PasswordResetTokenRepository;
 import com.backend.authservice.repositories.UserRepository;
@@ -41,6 +42,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final UserEventProducer userEventProducer;
     private final RoleService roleService;
     private final EmailService emailService;
     private final UserService userService;
@@ -66,6 +68,7 @@ public class AuthenticationService {
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
+        userEventProducer.publishUserLogin(user);
         return buildAuthResponse(user, accessToken, refreshToken.toString());
     }
 
@@ -93,6 +96,8 @@ public class AuthenticationService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        userEventProducer.publishUserRegister(user);
 
         log.info("New user registered: {}", user.getUsername());
 
@@ -209,8 +214,6 @@ public class AuthenticationService {
         userInfo.setUsername(user.getUsername());
         userInfo.setEmail(user.getEmail());
         userInfo.setFullName(user.getFullName());
-        userInfo.setAvatarUrl(user.getAvatarUrl());
-        userInfo.setSubscriptionType(user.getSubscriptionType().toString());
         userInfo.setRoles(user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toList()));
